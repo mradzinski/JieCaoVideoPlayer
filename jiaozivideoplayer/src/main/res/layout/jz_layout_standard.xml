@@ -20,7 +20,7 @@
         android:layout_toEndOf="@+id/back_tiny"
         android:layout_toRightOf="@+id/back_tiny"
         android:background="@color/JZBlack"
-        android:scaleType="fitCenter"/>
+        android:scaleType="centerCrop"/>
 
     <LinearLayout
         android:id="@+id/layout_bottom"
