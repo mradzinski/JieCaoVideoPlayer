@@ -24,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -149,20 +150,25 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
     }
 
     public static void startFullscreen(Context context, Class _class, String url, Object... objects) {
-        LinkedHashMap map = new LinkedHashMap();
-        map.put(URL_KEY_DEFAULT, url);
-        startFullscreen(context, _class, map, 0, objects);
+        startFullscreen(context, _class, false, url, objects);
     }
 
-    public static void startFullscreen(Context context, Class _class, LinkedHashMap urlMap, int defaultUrlMapIndex, Object... objects) {
+    public static void startFullscreen(Context context, Class _class, Boolean hideFullScreenButton, String url, Object... objects) {
+        LinkedHashMap map = new LinkedHashMap();
+        map.put(URL_KEY_DEFAULT, url);
+        startFullscreen(context, _class, map, hideFullScreenButton, 0, objects);
+    }
+
+    public static void startFullscreen(Context context, Class _class, LinkedHashMap urlMap, Boolean hideFullScreenButton, int defaultUrlMapIndex, Object... objects) {
         hideSupportActionBar(context);
         JZUtils.getAppCompActivity(context).setRequestedOrientation(FULLSCREEN_ORIENTATION);
-        ViewGroup vp = (ViewGroup) (JZUtils.scanForActivity(context))//.getWindow().getDecorView();
-                .findViewById(Window.ID_ANDROID_CONTENT);
+        ViewGroup vp = (JZUtils.scanForActivity(context)).findViewById(Window.ID_ANDROID_CONTENT);
         View old = vp.findViewById(JZVideoPlayer.FULLSCREEN_ID);
+
         if (old != null) {
             vp.removeView(old);
         }
+
         try {
             Constructor<JZVideoPlayer> constructor = _class.getConstructor(Context.class);
             final JZVideoPlayer jzVideoPlayer = constructor.newInstance(context);
@@ -174,6 +180,14 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
 //            jzVideoPlayer.setAnimation(ra);
             jzVideoPlayer.setUp(urlMap, defaultUrlMapIndex, JZVideoPlayerStandard.SCREEN_WINDOW_FULLSCREEN, objects);
             CLICK_QUIT_FULLSCREEN_TIME = System.currentTimeMillis();
+
+            if (hideFullScreenButton) {
+                jzVideoPlayer.fullscreenButton.setVisibility(View.GONE);
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) jzVideoPlayer.totalTimeTextView.getLayoutParams();
+                layoutParams.setMargins(layoutParams.leftMargin, layoutParams.topMargin, JZUtils.dip2px(context, 16), layoutParams.bottomMargin);
+                jzVideoPlayer.totalTimeTextView.setLayoutParams(layoutParams);
+            }
+
             jzVideoPlayer.startButton.performClick();
         } catch (InstantiationException e) {
             e.printStackTrace();
