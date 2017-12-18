@@ -212,8 +212,13 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                 (JZVideoPlayerManager.getFirstFloor().currentScreen == SCREEN_WINDOW_FULLSCREEN ||
                         JZVideoPlayerManager.getFirstFloor().currentScreen == SCREEN_WINDOW_TINY)) {//以前我总想把这两个判断写到一起，这分明是两个独立是逻辑
             CLICK_QUIT_FULLSCREEN_TIME = System.currentTimeMillis();
-            //直接退出全屏和小窗
-            JZVideoPlayerManager.getCurrentJzvd().currentState = CURRENT_STATE_NORMAL;
+            JZVideoPlayer jzVideoPlayer = JZVideoPlayerManager.getCurrentJzvd();
+
+            jzVideoPlayer.onEvent(jzVideoPlayer.currentScreen == JZVideoPlayerStandard.SCREEN_WINDOW_FULLSCREEN ?
+                    JZUserAction.ON_QUIT_FULLSCREEN :
+                    JZUserAction.ON_QUIT_TINYSCREEN);
+
+            jzVideoPlayer.currentState = CURRENT_STATE_NORMAL;
             JZVideoPlayerManager.getFirstFloor().clearFloatScreen();
             JZMediaManager.instance().releaseMediaPlayer();
             JZVideoPlayerManager.setFirstFloor(null);
@@ -502,11 +507,13 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
         if (seekToInAdvance != 0) {
             JZMediaManager.instance().mediaPlayer.seekTo(seekToInAdvance);
             seekToInAdvance = 0;
+            JZVideoPlayerManager.getCurrentJzvd().onEvent(JZUserAction.ON_VIDEO_RENDERING_START);
         } else {
             int position = JZUtils.getSavedProgress(getContext(), JZUtils.getCurrentUrlFromMap(urlMap, currentUrlMapIndex));
             if (position != 0) {
                 JZMediaManager.instance().mediaPlayer.seekTo(position);
             }
+            JZVideoPlayerManager.getCurrentJzvd().onEvent(JZUserAction.ON_VIDEO_RENDERING_START);
         }
         startProgressTimer();
         onStatePlaying();
