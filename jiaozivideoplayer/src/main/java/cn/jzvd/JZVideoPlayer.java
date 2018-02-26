@@ -1,5 +1,6 @@
 package cn.jzvd;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
@@ -14,7 +15,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -79,9 +79,8 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                     try {
-                        if (JZMediaManager.instance().mediaPlayer != null &&
-                                JZMediaManager.instance().mediaPlayer.isPlaying()) {
-                            JZMediaManager.instance().mediaPlayer.pause();
+                        if (JZVideoPlayerManager.getCurrentJzvd().currentState == JZVideoPlayer.CURRENT_STATE_PLAYING) {
+                            JZVideoPlayerManager.getCurrentJzvd().startButton.performClick();
                         }
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
@@ -227,6 +226,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
         return false;
     }
 
+    @SuppressLint("RestrictedApi")
     public static void showSupportActionBar(Context context) {
         if (ACTION_BAR_EXIST) {
             ActionBar ab = JZUtils.getAppCompActivity(context).getSupportActionBar();
@@ -240,6 +240,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
         }
     }
 
+    @SuppressLint("RestrictedApi")
     public static void hideSupportActionBar(Context context) {
         if (ACTION_BAR_EXIST) {
             ActionBar ab = JZUtils.getAppCompActivity(context).getSupportActionBar();
@@ -468,11 +469,14 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                     dismissVolumeDialog();
                     dismissBrightnessDialog();
                     if (mChangePosition) {
-                        onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION);
-                        JZMediaManager.instance().mediaPlayer.seekTo(mSeekTimePosition);
-                        int duration = getDuration();
-                        int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
-                        progressBar.setProgress(progress);
+                        try {
+                            onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION);
+                            JZMediaManager.instance().mediaPlayer.seekTo(mSeekTimePosition);
+                            int duration = getDuration();
+                            int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
+                            progressBar.setProgress(progress);
+                        } catch (IllegalStateException ignored) {
+                        }
                     }
                     if (mChangeVolume) {
                         onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_VOLUME);
