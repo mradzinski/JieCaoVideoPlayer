@@ -127,6 +127,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
     protected int mGestureDownVolume;
     protected float mGestureDownBrightness;
     protected int mSeekTimePosition;
+    protected boolean dispatchedGestureSeekPositionBegan = false;
     LinkedHashMap urlMap;
     int currentUrlMapIndex = 0;
 
@@ -399,6 +400,10 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                                     if (currentState != CURRENT_STATE_ERROR) {
                                         mChangePosition = true;
                                         mGestureDownPosition = getCurrentPositionWhenPlaying();
+                                        if (!dispatchedGestureSeekPositionBegan) {
+                                            dispatchedGestureSeekPositionBegan = true;
+                                            onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION_BEGAN);
+                                        }
                                     }
                                 } else {
                                     //如果y轴滑动距离超过设置的处理范围，那么进行滑动事件处理
@@ -470,11 +475,12 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                     dismissBrightnessDialog();
                     if (mChangePosition) {
                         try {
-                            onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION);
+                            onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION_ENDED);
                             JZMediaManager.instance().mediaPlayer.seekTo(mSeekTimePosition);
                             int duration = getDuration();
                             int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
                             progressBar.setProgress(progress);
+                            dispatchedGestureSeekPositionBegan = false;
                         } catch (IllegalStateException ignored) {
                         }
                     }
@@ -847,6 +853,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         // Log.i(TAG, "bottomProgress onStartTrackingTouch [" + this.hashCode() + "] ");
+        onEvent(JZUserAction.ON_SEEK_POSITION_BEGAN);
         cancelProgressTimer();
         ViewParent vpdown = getParent();
         while (vpdown != null) {
@@ -858,7 +865,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         // Log.i(TAG, "bottomProgress onStopTrackingTouch [" + this.hashCode() + "] ");
-        onEvent(JZUserAction.ON_SEEK_POSITION);
+        onEvent(JZUserAction.ON_SEEK_POSITION_ENDED);
         startProgressTimer();
         ViewParent vpup = getParent();
         while (vpup != null) {

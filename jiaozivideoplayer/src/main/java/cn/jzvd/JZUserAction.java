@@ -12,7 +12,8 @@ public interface JZUserAction {
 
     int ON_CLICK_PAUSE = 3;
     int ON_CLICK_RESUME = 4;
-    int ON_SEEK_POSITION = 5;
+    int ON_SEEK_POSITION_BEGAN = 5;
+    int ON_SEEK_POSITION_ENDED = 14;
     int ON_AUTO_COMPLETE = 6;
 
     int ON_ENTER_FULLSCREEN = 7;
@@ -23,7 +24,8 @@ public interface JZUserAction {
     int ON_VIDEO_RENDERING_START = 13;
 
     int ON_TOUCH_SCREEN_SEEK_VOLUME = 11;
-    int ON_TOUCH_SCREEN_SEEK_POSITION = 12;
+    int ON_TOUCH_SCREEN_SEEK_POSITION_BEGAN = 12;
+    int ON_TOUCH_SCREEN_SEEK_POSITION_ENDED = 15;
 
     void onEvent(int type, String url, int screen, Object... objects);
 
