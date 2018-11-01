@@ -473,7 +473,7 @@ public abstract class JZVideoPlayer extends FrameLayout implements View.OnClickL
                     dismissVolumeDialog();
                     dismissBrightnessDialog();
                     if (mChangePosition) {
-                        onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION);
+                        onEvent(JZUserAction.ON_TOUCH_SCREEN_SEEK_POSITION_BEGAN);
                         JZMediaManager.instance().mediaPlayer.seekTo(mSeekTimePosition);
                         int duration = getDuration();
                         int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
